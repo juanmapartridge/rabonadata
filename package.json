@@ -1,0 +1,14 @@
+{
+  "name": "sistema-rabona",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sistema de Análisis de Descenso - Liga Bellvillense de Fútbol - La Rabona",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
