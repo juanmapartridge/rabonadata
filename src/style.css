@@ -366,3 +366,49 @@ tr:hover td { background: var(--bg-hover); }
   .filter-bar { flex-direction: column; align-items: stretch; }
   .filter-actions { margin-left: 0; }
 }
+
+@media(max-width: 768px) {
+  .container { padding: 0 16px; }
+  .app-main { padding: 20px 16px; }
+  
+  /* Header */
+  .topbar-inner { flex-direction: column; height: auto; align-items: center; padding: 16px 0 0 0; }
+  .brand { flex-direction: column; text-align: center; gap: 8px; padding-bottom: 12px; }
+  .brand-titles h1 { font-size: 24px; }
+  .main-tabs { width: 100%; }
+  .tab-btn { flex: 1; padding: 12px 0; font-size: 14px; text-align: center; }
+
+  /* Toolbar */
+  .toolbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .toolbar-actions { width: 100%; justify-content: space-between; }
+  
+  /* Table */
+  th, td { padding: 10px 8px; font-size: 13px; }
+  .team-name { max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: middle; }
+  
+  /* Probability Bars */
+  .prob-team { width: 110px; }
+  .prob-team span { font-size: 12px; }
+  
+  /* Simulator Fixture */
+  .match-row { padding: 8px; gap: 6px; }
+  .m-team { font-size: 11px; }
+  .m-opts { gap: 2px; }
+  .btn-opt { width: 24px; height: 22px; font-size: 10px; }
+  
+  /* Analysis Tab */
+  .al-team { width: 100px; font-size: 12px; }
+  .al-score { font-size: 16px; padding: 4px 8px; }
+  .chart-lbl { width: 80px; font-size: 11px; }
+  .chart-bar { font-size: 11px; padding: 0 8px; }
+  .form-select { min-width: 100%; }
+}
+
+@media(max-width: 480px) {
+  .team-name { max-width: 75px; }
+  .prob-team { width: 90px; }
+  .al-team { width: 75px; }
+  .m-team span { display: none; } /* On very small screens, hide team names in simulator, just show logos */
+  .m-team { justify-content: center; }
+  .al-team span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 50px; vertical-align: middle;}
+}
