@@ -197,14 +197,23 @@ function renderGeneralTable(tableData = GENERAL_A_2026) {
 function updateTableWithProbabilities(simResults, tableData = GENERAL_A_2026) {
   if (!simResults) return;
   const rows = document.querySelectorAll('#general-table tbody tr');
+  
+  // Puntos del equipo en la posición 11 (índice 10) que marca el corte de descenso
+  const puntosDescenso = tableData[10] ? tableData[10].pts : 0;
+
   rows.forEach(row => {
     const team = row.getAttribute('data-team');
     const result = simResults.results.find(r => r.team === team);
-    if (!result) return;
+    const teamData = tableData.find(t => t.team === team);
+    if (!result || !teamData) return;
 
     row.className = '';
-    if (result.descensoPct > 50) row.classList.add('row-desc');
-    else if (result.descensoPct < 0.1) {
+    
+    // REGLAMENTO: Si tiene los mismos o menos puntos que el puesto 11, está en descenso directo o partido desempate.
+    // También mantenemos que si la simulación lo da con más de 50% de probabilidad (a futuro) se marque.
+    if (teamData.pts <= puntosDescenso || result.descensoPct > 50) {
+      row.classList.add('row-desc');
+    } else if (result.descensoPct < 0.1) {
       const pos = tableData.findIndex(t => t.team === team) + 1;
       if (pos === 1) row.classList.add('row-champ');
     }
