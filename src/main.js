@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   
   // Tab 1: Simulator
-  renderGeneralTable();
   renderFixtureSimulator();
   runAndDisplay();
   
@@ -73,6 +72,57 @@ function setupTabs() {
 // ============================================================================
 // TAB 1: SIMULATOR
 // ============================================================================
+function getHypotheticalTable() {
+  // Clonamos la tabla original
+  const table = JSON.parse(JSON.stringify(GENERAL_A_2026));
+  const tableMap = {};
+  table.forEach(t => tableMap[t.team] = t);
+
+  // Aplicamos los resultados bloqueados manualmente por el usuario
+  Object.keys(lockedResults).forEach(key => {
+    const parts = key.split('-');
+    // format is "Date-HomeTeam-AwayTeam"
+    // Since team names can have hyphens, we shouldn't just split by hyphen if teams have hyphens.
+    // However, our keys are generated exactly like this: `${dateObj.date}-${match.home}-${match.away}`
+    // Let's extract based on the fact we know match.home and match.away are exactly matching tableMap keys.
+    // To be safe, we iterate REMAINING_FIXTURE to find the match properties
+  });
+
+  // Better way: use REMAINING_FIXTURE to match keys accurately
+  for (const dateObj of REMAINING_FIXTURE) {
+    for (const match of dateObj.matches) {
+      const key = `${dateObj.date}-${match.home}-${match.away}`;
+      if (lockedResults[key]) {
+        const res = lockedResults[key].result;
+        const home = match.home;
+        const away = match.away;
+        
+        tableMap[home].pj += 1;
+        tableMap[away].pj += 1;
+        
+        if (res === 'home') {
+          tableMap[home].pts += 3;
+          tableMap[home].dg += 1;
+          tableMap[away].dg -= 1;
+        } else if (res === 'away') {
+          tableMap[away].pts += 3;
+          tableMap[away].dg += 1;
+          tableMap[home].dg -= 1;
+        } else if (res === 'draw') {
+          tableMap[home].pts += 1;
+          tableMap[away].pts += 1;
+        }
+      }
+    }
+  }
+
+  // Re-ordenamos la tabla hipotética
+  table.sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : b.dg - a.dg);
+  // Asignamos la nueva posición temporal
+  table.forEach((t, i) => t.pos = i + 1);
+  return table;
+}
+
 function runAndDisplay() {
   const statusEl = document.getElementById('sim-status');
   const dotEl = document.getElementById('sim-indicator');
@@ -87,9 +137,11 @@ function runAndDisplay() {
     statusEl.textContent = `Actualizado (${elapsed}ms)`;
     dotEl.classList.remove('busy');
 
+    const hypotheticalTable = getHypotheticalTable();
+    renderGeneralTable(hypotheticalTable);
     renderProbabilityBars(currentSimResults);
     renderInsights(currentSimResults);
-    updateTableWithProbabilities(currentSimResults);
+    updateTableWithProbabilities(currentSimResults, hypotheticalTable);
   }, 10);
 }
 
@@ -102,8 +154,8 @@ function resetSimulation() {
 }
 
 // --- Render Table ---
-function renderGeneralTable() {
-  const classified = classifyTeams(GENERAL_A_2026);
+function renderGeneralTable(tableData = GENERAL_A_2026) {
+  const classified = classifyTeams(tableData);
   const container = document.getElementById('general-table');
 
   let html = `
@@ -142,7 +194,7 @@ function renderGeneralTable() {
   container.innerHTML = html;
 }
 
-function updateTableWithProbabilities(simResults) {
+function updateTableWithProbabilities(simResults, tableData = GENERAL_A_2026) {
   if (!simResults) return;
   const rows = document.querySelectorAll('#general-table tbody tr');
   rows.forEach(row => {
@@ -153,7 +205,7 @@ function updateTableWithProbabilities(simResults) {
     row.className = '';
     if (result.descensoPct > 50) row.classList.add('row-desc');
     else if (result.descensoPct < 0.1) {
-      const pos = GENERAL_A_2026.findIndex(t => t.team === team) + 1;
+      const pos = tableData.findIndex(t => t.team === team) + 1;
       if (pos === 1) row.classList.add('row-champ');
     }
   });
